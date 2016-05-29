@@ -9,7 +9,7 @@
 
 //  400ppr encoder with 300mm length wheel so 4 ticks == 3 mm -> 3 / 4 = 0.75
 //  dividing by 100 to get decimeters or by 1000 to get meters
-const float TICKS_PER_DECIMETER = 0.75 / 100;
+#define TICKS_PER_DECIMETER 0.75 / 100
 
 volatile long encoderTicks = 0;
 int distance;
@@ -45,21 +45,25 @@ void setup() {
   shiftOut(SERIN, CLK, LSBFIRST, dig[0] + 0x1); //0x1 is dot segment address
   shiftOut(SERIN, CLK, LSBFIRST, dig[0]);
   shiftOut(SERIN, CLK, LSBFIRST, dig[0]);
+  
 }
 
 void loop() {
-
+  
   distance = encoderTicks * TICKS_PER_DECIMETER;
   displayDigits(abs(distance));
-  delay(250);
+  delay(100);
+  
 }
 
 void encoderISR() {
+  
   if (digitalReadFast(encoderPhaseB)) {
     encoderTicks++;
   } else {
     encoderTicks--;
   }
+  
 }
 
 void displayDigits(int distance) {
@@ -77,4 +81,3 @@ void displayDigits(int distance) {
   digitalWrite(LATCH, LOW);
 
 }
-
