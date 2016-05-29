@@ -8,7 +8,7 @@
 #define encoderInterruptA 0
 //  400ppr encoder with 300mm length wheel so 4 ticks == 3 mm -> 3 / 4 = 0.75
 //  dividing by 100 to get decimeters or by 1000 to get meters
-#define TICKS_PER_DECIMETER 0.75 / 100
+#define DECIMETERS_PER_TICK 0.75 / 100
 
 volatile long encoderTicks = 0;
 int distance;
@@ -49,7 +49,7 @@ void setup() {
 
 void loop() {
   
-  distance = encoderTicks * TICKS_PER_DECIMETER;
+  distance = encoderTicks * DECIMETERS_PER_TICK;
   displayDigits(abs(distance));
   delay(100);
   
