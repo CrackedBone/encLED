@@ -28,7 +28,6 @@ byte dig[10] = {0xFC, // 0
 
 void setup() {
 
-	Serial.begin(9600);
 	pinMode(CLK, OUTPUT);
 	pinMode(SERIN, OUTPUT);
 	pinMode(LATCH, OUTPUT);
@@ -46,7 +45,6 @@ void setup() {
 void loop() {
 	
 	distance = encoderTicks * 0.75 / 100;
-	Serial.println(abs(distance));
 	splitDigits(abs(distance));
 	display();
 }
@@ -72,7 +70,7 @@ void splitDigits(int distance){
 
 }
 
-void displayDigits(){
+void display(){
 
 	digitalWrite(LATCH, HIGH);
 	digitalWrite(LATCH, LOW);	
