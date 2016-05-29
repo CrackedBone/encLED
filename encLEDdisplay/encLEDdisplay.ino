@@ -6,7 +6,6 @@
 #define encoderPhaseA 2
 #define encoderPhaseB 3
 #define encoderInterruptA 0
-
 //  400ppr encoder with 300mm length wheel so 4 ticks == 3 mm -> 3 / 4 = 0.75
 //  dividing by 100 to get decimeters or by 1000 to get meters
 #define TICKS_PER_DECIMETER 0.75 / 100
