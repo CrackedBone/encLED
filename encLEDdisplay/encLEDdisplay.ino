@@ -7,74 +7,74 @@
 #define encoderPhaseB 3
 #define encoderInterruptA 0
 
-volatile long encoderTicks = 0;
-int distance = 0;
-int decimal = 0;
-int third = 0;
-int second = 0;
-int first = 0;
+//  400ppr encoder with 300mm length wheel so 4 ticks == 3 mm -> 3 / 4 = 0.75
+//  dividing by 100 to get decimeters or by 1000 to get meters
+const float TICKS_PER_DECIMETER = 0.75 / 100;
 
+volatile long encoderTicks = 0;
+int distance;
+int decimal;
+int third;
+int second;
+int first;
+
+//  digits array
 byte dig[10] = {0xFC, // 0
-	0x60, // 1
-	0xDA, // 2
-	0xF2, // 3
-	0x66, // 4
-	0xB6, // 5
-	0xBE, // 6
-	0xE0,  // 7
-	0xFE, // 8
-	0xF6 // 9
-}; // digits array
+                0x60, // 1
+                0xDA, // 2
+                0xF2, // 3
+                0x66, // 4
+                0xB6, // 5
+                0xBE, // 6
+                0xE0,  // 7
+                0xFE, // 8
+                0xF6 // 9
+               };
 
 void setup() {
 
-	pinMode(CLK, OUTPUT);
-	pinMode(SERIN, OUTPUT);
-	pinMode(LATCH, OUTPUT);
-	pinMode(ENABLE, OUTPUT);
-	pinMode(encoderPhaseA, INPUT_PULLUP); //input pin with internal pull-up resistor
-	pinMode(encoderPhaseB, INPUT_PULLUP); //input pin with internal pull-up resistor
-	
-	attachInterrupt(encoderInterruptA, encoderISR, FALLING);
-	shiftOut(SERIN, CLK, LSBFIRST, dig[0]);
-	shiftOut(SERIN, CLK, LSBFIRST, dig[0] + 0x1);
-	shiftOut(SERIN, CLK, LSBFIRST, dig[0]);
-	shiftOut(SERIN, CLK, LSBFIRST, dig[0]);
+  pinMode(CLK, OUTPUT);
+  pinMode(SERIN, OUTPUT);
+  pinMode(LATCH, OUTPUT);
+  pinMode(ENABLE, OUTPUT);
+  pinMode(encoderPhaseA, INPUT_PULLUP); //input pin with internal pull-up resistor
+  pinMode(encoderPhaseB, INPUT_PULLUP); //input pin with internal pull-up resistor
+
+  attachInterrupt(encoderInterruptA, encoderISR, FALLING);
+  shiftOut(SERIN, CLK, LSBFIRST, dig[0]);
+  shiftOut(SERIN, CLK, LSBFIRST, dig[0] + 0x1); //0x1 is dot segment address
+  shiftOut(SERIN, CLK, LSBFIRST, dig[0]);
+  shiftOut(SERIN, CLK, LSBFIRST, dig[0]);
 }
 
 void loop() {
-	
-	distance = encoderTicks * 0.75 / 100;	// 400ppr encoder with 300mm length wheel so 4 ticks == 3 mm -> 3 / 4 = 0.75
-											//dividing by 100 to get decimeters or by 1000 to get meters
-	splitDigits(abs(distance));
-	display();
+
+  distance = encoderTicks * TICKS_PER_DECIMETER;
+  displayDigits(abs(distance));
+  delay(250);
 }
 
-void encoderISR(){
-	if (digitalReadFast(encoderPhaseB)){
-		encoderTicks++;
-	} else {
-		encoderTicks--;
-	}
+void encoderISR() {
+  if (digitalReadFast(encoderPhaseB)) {
+    encoderTicks++;
+  } else {
+    encoderTicks--;
+  }
 }
 
-void splitDigits(int distance){
+void displayDigits(int distance) {
 
-	decimal = distance % 10;
-	shiftOut(SERIN, CLK, LSBFIRST, dig[decimal]);   
-	third = (distance / 10) % 10;
-	shiftOut(SERIN, CLK, LSBFIRST, dig[third] + 0x1);
-	second = (distance  / 100) % 10;
-	shiftOut(SERIN, CLK, LSBFIRST, dig[second]);
-	first = (distance / 1000) % 10;
-	shiftOut(SERIN, CLK, LSBFIRST, dig[first]);
+  decimal = distance % 10;
+  shiftOut(SERIN, CLK, LSBFIRST, dig[decimal]);
+  third = (distance / 10) % 10;
+  shiftOut(SERIN, CLK, LSBFIRST, dig[third] + 0x1);
+  second = (distance  / 100) % 10;
+  shiftOut(SERIN, CLK, LSBFIRST, dig[second]);
+  first = (distance / 1000) % 10;
+  shiftOut(SERIN, CLK, LSBFIRST, dig[first]);
 
-}
+  digitalWrite(LATCH, HIGH);
+  digitalWrite(LATCH, LOW);
 
-void display(){
-
-	digitalWrite(LATCH, HIGH);
-	digitalWrite(LATCH, LOW);	
-	
 }
 
