@@ -44,7 +44,8 @@ void setup() {
 
 void loop() {
 	
-	distance = encoderTicks * 0.75 / 100;
+	distance = encoderTicks * 0.75 / 100;	// 400ppr encoder with 300mm length wheel so 4 ticks == 3 mm -> 3 / 4 = 0.75
+											//dividing by 100 to get decimeters or by 1000 to get meters
 	splitDigits(abs(distance));
 	display();
 }
