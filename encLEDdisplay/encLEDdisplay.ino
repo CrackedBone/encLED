@@ -7,10 +7,8 @@
 #define encoderPhaseB 3
 #define encoderInterruptA 0
 
-volatile int encoderTicks = 0;
-long distance = 0;
-volatile int mills = 0;
-volatile int meters = 0;
+volatile long encoderTicks = 0;
+int distance = 0;
 int decimal = 0;
 int third = 0;
 int second = 0;
@@ -30,6 +28,7 @@ byte dig[10] = {0xFC, // 0
 
 void setup() {
 
+	Serial.begin(9600);
 	pinMode(CLK, OUTPUT);
 	pinMode(SERIN, OUTPUT);
 	pinMode(LATCH, OUTPUT);
@@ -46,10 +45,10 @@ void setup() {
 
 void loop() {
 	
-	distance = (meters + mills * 0.001) * 10;
-
+	distance = encoderTicks * 0.75 / 100;
+	Serial.println(abs(distance));
 	splitDigits(abs(distance));
-	displayDigits();
+	display();
 }
 
 void encoderISR(){
@@ -57,17 +56,6 @@ void encoderISR(){
 		encoderTicks++;
 	} else {
 		encoderTicks--;
-	}
-	if (encoderTicks == 4){
-		mills += 3;
-		encoderTicks = 0;
-	}else if (encoderTicks == -4){
-		mills -= 3;
-		encoderTicks = 0;
-	}
-	if(mills >= 1000){
-		meters++;
-		mills = 0;
 	}
 }
 
